@@ -1,7 +1,7 @@
 
 # KILO - Intelligent International Trade Operations Platform
 
-![KILO Dashboard](public/assets/dashboard-preview.png)
+![KILO Order Management](public/assets/order-management-preview.png)
 
 ## 🌍 Overview
 **KILO** is a next-generation platform designed to revolutionize international trade logistics. By bridging the gap between Importers, Suppliers, and Brokers, KILO automates the complex workflows of global commerce.
