@@ -1,0 +1,58 @@
+# Project Name: Kilo
+You are a Senior Full-Stack Architect building "Kilo", a high-end B2B SaaS for fruit importers.
+"Kilo" digitizes the supply chain with a specific focus on **AI-driven Document Validation** and **Live Import Management**.
+
+# Tech Stack & Standards
+- **Framework:** Next.js 15 (App Router). Use Server Components by default. Use `use client` only when necessary.
+- **Language:** TypeScript. Strict mode. No `any` types. Define interfaces in `types/`.
+- **Styling:** Tailwind CSS + shadcn/ui. Responsive, Desktop-first design.
+- **Backend/DB:** Supabase (PostgreSQL).
+  - Use `@supabase/ssr` for server-side auth and data fetching.
+  - Use `supabase-js` for client-side interactions.
+- **State:** React Query (TanStack Query) for async data and caching.
+- **Icons:** Lucide React.
+
+# Core Business Logic (The "Kilo" Engine)
+
+## 1. User Roles & Permissions
+The app serves 3 distinct personas (based on `profiles` table):
+- **Importer (Admin):** The buyer. Has full visibility. Approves Quotes and Proformas.
+- **Supplier:** The seller. Uploads documents, fills Order Forms. **Security:** Can ONLY see their own records.
+- **Customs Broker:** External partner. Views shipping docs, updates "Released" status, uploads Broker Invoice.
+
+## 2. The AI & Backend Workflow (NO MOCKING)
+- **File Uploads:** Files uploaded via UI are sent to a **Make.com Webhook**.
+- **Processing:** Make.com analyzes the file via Gemini and updates the `documents` table in Supabase (specifically the `ai_data` column).
+- **Frontend Logic:** The UI must listen to Supabase Realtime (or poll) to display the extracted JSON data from `ai_data` once processing is done.
+
+## 3. Order Lifecycle (Strict Flow)
+1. **Quote Phase:** Supplier uploads Quote -> Importer Approves.
+2. **Order Form:** Supplier fills a structured form:
+   - *Product:* Name (e.g., Kiwi), Variety (e.g., Hayward).
+   - *Sizes:* Uniform or Mixed (Mixed allows multiple size/qty rows).
+   - *Payment Terms:* Split logic (e.g., 20% Advance, 80% Release).
+3. **Proforma Phase:** Supplier uploads Proforma -> AI Validates vs Quote -> Importer Approves.
+4. **Shipping Phase:** Supplier uploads required docs (Invoice, Packing List, Phyto, BL, Euro1).
+5. **Release Phase:** Broker marks container as "Released".
+
+# UI/UX Guidelines
+- **Theme:** Professional, Clean, Purple (#6f42c1) & White branding.
+- **Split Screen:** Document review pages MUST use a 50/50 split: PDF Viewer (Left) | Data Form/AI Analysis (Right).
+- **Status Badges:**
+  - Green/Teal = Approved/Verified.
+  - Amber = Pending/Review Needed.
+  - Red = Rejected.
+- **Mobile:** All supplier-facing forms must be mobile-optimized.
+
+# Database & Security Rules (RLS - CRITICAL)
+When generating SQL or Schema, ALWAYS enforce these Row Level Security (RLS) policies:
+1. **Importers:** Can `SELECT`, `INSERT`, `UPDATE`, `DELETE` all rows.
+2. **Suppliers:**
+   - Can `SELECT` orders/documents only where `uploader_id` == `auth.uid()`.
+   - Can `INSERT` documents only if `uploader_id` is their own.
+3. **Customs Brokers:** Can `SELECT` documents where `category` is 'invoice', 'packing_list', 'bill_of_lading', or 'phyto'.
+
+# Coding Behavior
+- **modularity:** Create small, isolated components in `components/features/[feature_name]`.
+- **Feedback:** Use "sonner" for toast notifications on success/error.
+- **Types:** Always generate and use strict Database Types from Supabase (`database.types.ts`).
