@@ -32,6 +32,12 @@ Instead of manually typing order details, suppliers simply upload a Quote PDF.
 
 ![Smart Order Creation](public/assets/smart-order-preview.png)
 
+### Backend Workflow (Make.com)
+The entire extraction process is orchestrated via a visual workflow covering webhook reception, Gemini AI processing, and Supabase database insertion.
+
+![Make.com Scenario Workflow](public/assets/make-scenario-workflow.png)
+
+
 ```mermaid
 sequenceDiagram
     participant Supplier
